@@ -19,6 +19,7 @@ qrc_*.cpp
 *.swp
 *.swo
 *~
+.qtc_clangd/
 
 # 操作系统
 .DS_Store
@@ -28,3 +29,4 @@ desktop.ini
 # 项目特定
 功能描述.txt
 *.db
+.qmake.stash
