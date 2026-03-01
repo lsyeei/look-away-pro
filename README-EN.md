@@ -162,8 +162,6 @@ Use Look Away Pro and follow the 20-20-20 rule to give your eyes proper rest!
 - [ ] Cloud data synchronization
 - [ ] Richer statistical charts
 - [ ] Smart break suggestions
-- [ ] Pomodoro technique integration
-- [ ] Mobile companion app
 
 ## 🤝 Contributing
 
