@@ -62,7 +62,7 @@ void AboutDialog::setupUI()
     m_mainLayout->addWidget(m_emailLabel);
     
     // Project link (clickable)
-    m_projectLabel = new QLabel("项目地址: <a href='https://github.com/lsyeei/look-away' style='color: #4CAF50;'>https://github.com/lsyeei/look-away</a>", this);
+    m_projectLabel = new QLabel("项目地址: <a href='https://github.com/lsyeei/look-away-pro' style='color: #4CAF50;'>https://github.com/lsyeei/look-away-pro</a>", this);
     m_projectLabel->setAlignment(Qt::AlignCenter);
     m_projectLabel->setOpenExternalLinks(true);
     m_projectLabel->setStyleSheet("font-size: 13px; color: white;");

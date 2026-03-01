@@ -126,8 +126,8 @@ Configuration page divided into four main tabs:
 ### Build Steps
 ```bash
 # Clone repository
-git clone https://github.com/lsyeei/look-away.git
-cd look-away
+git clone https://github.com/lsyeei/look-away-pro.git
+cd look-away-pro
 
 # Generate Makefile
 qmake LookAwayPro.pro

@@ -126,8 +126,8 @@ Look Away Pro 是一款智能护眼提醒工具，通过定时提醒用户远眺
 ### 编译步骤
 ```bash
 # 克隆项目
-git clone https://github.com/lsyeei/look-away.git
-cd look-away
+git clone https://github.com/lsyeei/look-away-pro.git
+cd look-away-pro
 
 # 生成 Makefile
 qmake LookAwayPro.pro
