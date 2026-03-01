@@ -35,7 +35,7 @@ void ConfigManager::setDefaultValues()
     m_breakTime = 20;
     m_message = "您已工作{time}分钟，远眺20英尺外{break}秒，\n请保护好眼睛";
     m_backgroundImage = "";
-    m_soundFile = ":/sound/break-end.wav";
+    m_soundFile = "";
     m_screenSaverOption = 0;
     m_lockScreenOption = 0;
     m_autoStart = false;
@@ -53,7 +53,7 @@ void ConfigManager::setDefaultValues()
     m_countdownFontFamily = "Arial";
     m_countdownFontSize = 24;
     m_countdownTextColor = QColor(255, 255, 255);
-    m_countdownAlertSound = ":/sound/time-end.wav";
+    m_countdownAlertSound = "";
 }
 
 QString ConfigManager::configFilePath() const

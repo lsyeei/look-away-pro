@@ -1,4 +1,4 @@
-QT       += core gui widgets sql multimediawidgets xml
+QT       += core gui widgets sql multimediawidgets xml concurrent
 
 TARGET = LookAwayPro
 TEMPLATE = app
@@ -52,7 +52,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     resources.qrc
 
+RC_ICONS = icon.ico
+
 win32 {
+    RC_FILE = LookAwayPro.rc
     LIBS += -luser32 -lwtsapi32
     DEFINES += _WIN32_WINNT=0x0601
 }

@@ -206,10 +206,13 @@ void ReminderDialog::onBreakFinished()
     m_countdownTimer.stop();
 
     auto soundFile = m_config->soundFile();
+    if (soundFile.isEmpty()){
+        soundFile = "qrc:/sound/break-end.wav";
+    }
     // Play end sound
-    if (!soundFile.isEmpty() && QFile::exists(soundFile)) {
+    if (QFile::exists(soundFile)) {
         m_mediaPlayer->stop();
-        m_mediaPlayer->setSource(QUrl::fromLocalFile(soundFile));
+        m_mediaPlayer->setSource(QUrl(soundFile));
         m_audioOutput->setVolume(0.7);
         m_mediaPlayer->play();
     }

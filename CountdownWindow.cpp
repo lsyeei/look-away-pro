@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <QPropertyAnimation>
+ #include <QtConcurrent>
 
 CountdownWindow::CountdownWindow(int hours, int minutes, int seconds, QWidget *parent)
     : QWidget(parent)
@@ -18,7 +19,7 @@ CountdownWindow::CountdownWindow(int hours, int minutes, int seconds, QWidget *p
     , m_timeLabel(new QLabel(this))
     , m_closeButton(new QPushButton(this))
     , m_finished(false)
-    , m_flashCount(3)
+    , m_flashCount(0)
 {
     setupUI();
     
@@ -33,6 +34,8 @@ CountdownWindow::CountdownWindow(int hours, int minutes, int seconds, QWidget *p
 
 CountdownWindow::~CountdownWindow()
 {
+    delete player;
+    delete audioOutput;
 }
 
 void CountdownWindow::updateTimeStyle()
@@ -105,6 +108,9 @@ void CountdownWindow::setupUI()
     int y = (screenGeometry.height() - height()) / 2;
     move(x, y);
 
+
+    player = new QMediaPlayer(this);
+    audioOutput = new QAudioOutput(this);
 }
 
 void CountdownWindow::mousePressEvent(QMouseEvent *event)
@@ -151,13 +157,14 @@ void CountdownWindow::onTimerTimeout()
     if (m_time.hour() == 0 && m_time.minute() == 0 && m_time.second() == 0) {
         m_timer->stop();
         m_finished = true;
-        playAlertSound();
+        auto future = QtConcurrent::run([&](){playAlertSound();});
         flashWindow();
     }
 }
 
 void CountdownWindow::onCloseClicked()
 {
+    player->stop();
     m_timer->stop();
     close();
 }
@@ -183,20 +190,15 @@ void CountdownWindow::playAlertSound()
 {
     auto config = ConfigManager::instance();
     QString soundFile = config->countdownAlertSound();
+    if (soundFile.isEmpty()){
+        soundFile = "qrc:/sound/time-end.wav";
+    }
     
-    if (!soundFile.isEmpty() && (soundFile.endsWith(".wav") || soundFile.endsWith(".mp3"))) {
-        auto *player = new QMediaPlayer(this);
-        auto *audioOutput = new QAudioOutput(this);
+    if (soundFile.endsWith(".wav") || soundFile.endsWith(".mp3")) {
         player->setAudioOutput(audioOutput);
-        player->setSource(QUrl::fromLocalFile(soundFile));
+        player->setSource(QUrl(soundFile));
         audioOutput->setVolume(80);
         player->play();
-        
-        connect(player, &QMediaPlayer::playbackStateChanged, [player](QMediaPlayer::PlaybackState state) {
-            if (state == QMediaPlayer::StoppedState) {
-                player->deleteLater();
-            }
-        });
     }
 }
 
