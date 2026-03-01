@@ -276,35 +276,10 @@ void MainWindow::onShowCountdown()
 
 void MainWindow::onTimerComplete()
 {
-    // QString message = m_config->message();
-    // message.replace("{time}", QString::number(m_config->workTime()));
-    // message.replace("{break}", QString::number(m_config->breakTime()));
 
     if (!m_reminderDialog) {
         m_reminderDialog = new ReminderDialog(this);
     }
-    
-    // m_reminderDialog->setMessage(message);
-
-    // Set background based on type
-    // if (m_config->backgroundType() == 2 && !m_config->backgroundImage().isEmpty()
-    //     && QFile::exists(m_config->backgroundImage())) {
-    //     // Use image background
-    //     m_reminderDialog->setBackgroundImage(m_config->backgroundImage());
-    //     m_reminderDialog->setImageDrawMode(m_config->imageDrawMode());
-    // } else if (m_config->backgroundType() == 1) {
-    //     // Use custom color background
-    //     m_reminderDialog->setBackgroundColor(m_config->backgroundColor());
-    // } else {
-    //     // Use default black background (backgroundType == 0)
-    //     m_reminderDialog->setBackgroundImage("");  // Clear any previous image
-    // }
-
-    // m_reminderDialog->setBreakTime(m_config->breakTime());
-    // m_reminderDialog->setForceRest(m_config->forceRest());
-    // m_reminderDialog->setSoundFile(m_config->soundFile());
-    // m_reminderDialog->setFontFamily(m_config->fontFamily());
-    // m_reminderDialog->setFontSize(m_config->fontSize());
 
     m_reminderDialog->showFullScreen();
     m_reminderDialog->exec();

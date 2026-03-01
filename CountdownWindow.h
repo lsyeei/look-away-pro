@@ -6,9 +6,6 @@
 #include <QTime>
 #include <QPushButton>
 #include <QLabel>
-
-class QAudioOutput;
-class QMediaPlayer;
 class CountdownWindow : public QWidget
 {
     Q_OBJECT
@@ -38,9 +35,7 @@ private:
     QTime m_time;
     QLabel *m_timeLabel;
     QPushButton *m_closeButton;
-    QMediaPlayer *player;
-    QAudioOutput *audioOutput;
-    
+
     bool m_finished;
     QPoint m_dragPosition;
     int m_flashCount;

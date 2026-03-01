@@ -12,6 +12,8 @@
 #include "DatabaseManager.h"
 #include "screenstatemonitor.h"
 
+class AudioPlayer;
+
 class ConfigManager;
 class MainWindow : public QMainWindow
 {

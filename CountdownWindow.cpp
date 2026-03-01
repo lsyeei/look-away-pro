@@ -1,16 +1,15 @@
 #include "CountdownWindow.h"
 #include "ConfigManager.h"
+#include "AudioPlayer.h"
 #include <QVBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QFont>
 #include <QFontDatabase>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 #include <QDebug>
 #include <QApplication>
 #include <QPropertyAnimation>
- #include <QtConcurrent>
+#include <QtConcurrent>
 
 CountdownWindow::CountdownWindow(int hours, int minutes, int seconds, QWidget *parent)
     : QWidget(parent)
@@ -34,8 +33,6 @@ CountdownWindow::CountdownWindow(int hours, int minutes, int seconds, QWidget *p
 
 CountdownWindow::~CountdownWindow()
 {
-    delete player;
-    delete audioOutput;
 }
 
 void CountdownWindow::updateTimeStyle()
@@ -107,10 +104,6 @@ void CountdownWindow::setupUI()
     int x = (screenGeometry.width() - width()) / 2;
     int y = (screenGeometry.height() - height()) / 2;
     move(x, y);
-
-
-    player = new QMediaPlayer(this);
-    audioOutput = new QAudioOutput(this);
 }
 
 void CountdownWindow::mousePressEvent(QMouseEvent *event)
@@ -164,7 +157,7 @@ void CountdownWindow::onTimerTimeout()
 
 void CountdownWindow::onCloseClicked()
 {
-    player->stop();
+    AudioPlayer::instance()->stop();
     m_timer->stop();
     close();
 }
@@ -190,16 +183,11 @@ void CountdownWindow::playAlertSound()
 {
     auto config = ConfigManager::instance();
     QString soundFile = config->countdownAlertSound();
-    if (soundFile.isEmpty()){
+
+    if (soundFile.isEmpty()) {
         soundFile = "qrc:/sound/time-end.wav";
     }
-    
-    if (soundFile.endsWith(".wav") || soundFile.endsWith(".mp3")) {
-        player->setAudioOutput(audioOutput);
-        player->setSource(QUrl(soundFile));
-        audioOutput->setVolume(80);
-        player->play();
-    }
+    AudioPlayer::instance()->play(soundFile);
 }
 
 void CountdownWindow::flashWindow()

@@ -7,8 +7,6 @@
 #include <QLabel>
 #include <QTimer>
 #include <QPushButton>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 #include <QPixmap>
 #include <QKeyEvent>
 #include <QCloseEvent>
@@ -43,8 +41,6 @@ private:
 
     QPixmap m_backgroundPixmap;
     int m_remainingTime;
-    QMediaPlayer *m_mediaPlayer;
-    QAudioOutput *m_audioOutput;
     ConfigManager *m_config;
 };
 

@@ -23,7 +23,8 @@ SOURCES += \
     ConfigManager.cpp \
     TimerWindow.cpp \
     CountdownWindow.cpp \
-    CountdownInputDialog.cpp
+    CountdownInputDialog.cpp \
+    AudioPlayer.cpp
 
 HEADERS += \
     MainWindow.h \
@@ -38,7 +39,8 @@ HEADERS += \
     ConfigManager.h \
     TimerWindow.h \
     CountdownWindow.h \
-    CountdownInputDialog.h
+    CountdownInputDialog.h \
+    AudioPlayer.h
 
 FORMS += \
     StatisticsDialog.ui \

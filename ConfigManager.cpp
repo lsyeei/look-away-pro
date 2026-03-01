@@ -36,8 +36,8 @@ void ConfigManager::setDefaultValues()
     m_message = "您已工作{time}分钟，远眺20英尺外{break}秒，\n请保护好眼睛";
     m_backgroundImage = "";
     m_soundFile = "";
-    m_screenSaverOption = 0;
-    m_lockScreenOption = 0;
+    m_screenSaverOption = 1;
+    m_lockScreenOption = 1;
     m_autoStart = false;
     m_forceRest = true;
     m_fontFamily = "Microsoft YaHei";

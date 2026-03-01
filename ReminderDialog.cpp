@@ -1,4 +1,5 @@
 #include "ReminderDialog.h"
+#include "AudioPlayer.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPainter>
@@ -14,8 +15,6 @@ ReminderDialog::ReminderDialog(QWidget *parent)
     , m_countdownLabel(nullptr)
     , m_closeButton(nullptr)
     , m_remainingTime(20)
-    , m_mediaPlayer(nullptr)
-    , m_audioOutput(nullptr)
     , m_config(nullptr)
 {
     setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog);
@@ -51,15 +50,13 @@ ReminderDialog::ReminderDialog(QWidget *parent)
                                  "QPushButton:hover { "
                                  "background-color: rgba(220, 120, 120, 200); }");
     m_closeButton->setVisible(false);
-    connect(m_closeButton, &QPushButton::clicked, this, &ReminderDialog::accept);
+    connect(m_closeButton, &QPushButton::clicked, this, [&](){
+        m_countdownTimer.stop();
+        accept();});
     mainLayout->addWidget(m_closeButton, 0, Qt::AlignCenter);
 
     // mainLayout->addStretch();
 
-
-    m_mediaPlayer = new QMediaPlayer(this);
-    m_audioOutput = new QAudioOutput(this);
-    m_mediaPlayer->setAudioOutput(m_audioOutput);
 
     connect(&m_countdownTimer, &QTimer::timeout, this, &ReminderDialog::updateCountdown);
     updateMessageFont();
@@ -206,16 +203,10 @@ void ReminderDialog::onBreakFinished()
     m_countdownTimer.stop();
 
     auto soundFile = m_config->soundFile();
-    if (soundFile.isEmpty()){
+    if (soundFile.isEmpty()) {
         soundFile = "qrc:/sound/break-end.wav";
     }
-    // Play end sound
-    if (QFile::exists(soundFile)) {
-        m_mediaPlayer->stop();
-        m_mediaPlayer->setSource(QUrl(soundFile));
-        m_audioOutput->setVolume(0.7);
-        m_mediaPlayer->play();
-    }
+    AudioPlayer::instance()->play(soundFile);
 
     // Always close dialog when break finishes regardless of forceRest setting
     accept();
