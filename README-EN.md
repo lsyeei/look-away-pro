@@ -1,6 +1,6 @@
 # Look Away Pro
 
-[English Version](./README-EN.md) | [中文版](./README-CN.md)
+[English Version](./README-EN.md) | [中文版](./README.md)
 
 A desktop eye-care reminder application developed with Qt C++, designed to help users prevent eye strain from prolonged computer use.
 

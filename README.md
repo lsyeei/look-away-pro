@@ -1,6 +1,6 @@
 # Look Away Pro
 
-[English Version](./README-EN.md) | [中文版](./README-CN.md)
+[English Version](./README-EN.md) | [中文版](./README.md)
 
 一个基于 Qt C++ 开发的桌面护眼提醒应用程序，帮助用户预防长时间使用电脑导致的眼部疲劳。
 
