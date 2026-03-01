@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon.ico</file>
+        <file>icons/switch_off.svg</file>
+        <file>icons/switch_on.svg</file>
+        <file>icons/switch_off_hover.svg</file>
+        <file>icons/switch_on_hover.svg</file>
+        <file>icons/statistics.svg</file>
+        <file>icons/settings.svg</file>
+        <file>icons/pause.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/quit.svg</file>
+        <file>icons/about.svg</file>
+        <file>icons/tools.svg</file>
+        <file>icons/timer.svg</file>
+        <file>icons/countdown.svg</file>
+        <file>icons/restart.svg</file>
+        <file>icons/pause2.svg</file>
+        <file>sound/break-end.wav</file>
+        <file>sound/time-end.wav</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,30 @@
+# 编译输出
+debug/
+release/
+*.o
+*.obj
+Makefile*
+*.pro.user
+*.autosave
+
+# Qt生成文件
+ui_*.h
+moc_*.cpp
+qrc_*.cpp
+*.moc
+
+# IDE配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 项目特定
+功能描述.txt
+*.db

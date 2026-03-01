@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StatisticsDialog</class>
+ <widget class="QDialog" name="StatisticsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>355</width>
+    <height>222</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>统计 - Look Away Pro</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>3</number>
+     </property>
+     <widget class="QWidget" name="todayTab">
+      <attribute name="title">
+       <string>今天</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="todayTabLayout">
+       <item>
+        <widget class="QGroupBox" name="workTimeGroup">
+         <property name="title">
+          <string>工作时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workHoursLabel">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workMinutesLabel">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="breakTimeGroup">
+         <property name="title">
+          <string>休息时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakHoursLabel">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakMinutesLabel">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="weekTab">
+      <attribute name="title">
+       <string>本周</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="weekTabLayout">
+       <item>
+        <widget class="QGroupBox" name="workTimeGroup_2">
+         <property name="title">
+          <string>工作时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workHoursLabel_2">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workMinutesLabel_2">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="breakTimeGroup_2">
+         <property name="title">
+          <string>休息时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakHoursLabel_2">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakMinutesLabel_2">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="monthTab">
+      <attribute name="title">
+       <string>本月</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="monthTabLayout">
+       <item>
+        <widget class="QGroupBox" name="workTimeGroup_3">
+         <property name="title">
+          <string>工作时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workHoursLabel_3">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workMinutesLabel_3">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="breakTimeGroup_3">
+         <property name="title">
+          <string>休息时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakHoursLabel_3">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakMinutesLabel_3">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="customTab">
+      <attribute name="title">
+       <string>自定义</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="customTabLayout">
+       <item>
+        <layout class="QHBoxLayout" name="dateRangeLayout">
+         <item>
+          <widget class="QLabel" name="startDateLabel">
+           <property name="text">
+            <string>开始日期:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDateEdit" name="startDateEdit">
+           <property name="displayFormat">
+            <string>yyyy-MM-dd ddd</string>
+           </property>
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="endDateLabel">
+           <property name="text">
+            <string>结束日期:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDateEdit" name="endDateEdit">
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="workTimeGroup_4">
+         <property name="title">
+          <string>工作时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workHoursLabel_4">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="workMinutesLabel_4">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: blue; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="breakTimeGroup_4">
+         <property name="title">
+          <string>休息时间</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>小时:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakHoursLabel_4">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>分钟:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breakMinutesLabel_4">
+            <property name="styleSheet">
+             <string>QLabel { font-size: 24px; font-weight: bold; color: green; }</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
