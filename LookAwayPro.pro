@@ -58,7 +58,7 @@ RC_ICONS = icon.ico
 
 win32 {
     RC_FILE = LookAwayPro.rc
-    LIBS += -luser32 -lwtsapi32
+    LIBS += -luser32 -lwtsapi32 -lole32
     DEFINES += _WIN32_WINNT=0x0601
 }
 

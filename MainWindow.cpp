@@ -302,6 +302,10 @@ void MainWindow::onSessionEnd()
 
 void MainWindow::onScreenStateChanged(ScreenState state)
 {
+    if (m_isPaused) {
+        // user set paused, keep pause state
+        return;
+    }
     // option 1-stop  2-restart
     switch (state) {
     case ScreenState::Unlocked:

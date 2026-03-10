@@ -23,6 +23,7 @@ protected:
 private slots:
     void onTimerTimeout();
     void onCloseClicked();
+    void onRestartClicked();
     void onFinished();
 
 private:
@@ -33,8 +34,10 @@ private:
 
     QTimer *m_timer;
     QTime m_time;
+    QTime m_initTime;
     QLabel *m_timeLabel;
     QPushButton *m_closeButton;
+    QPushButton *m_restartBtn;
 
     bool m_finished;
     QPoint m_dragPosition;

@@ -17,13 +17,16 @@ CountdownWindow::CountdownWindow(int hours, int minutes, int seconds, QWidget *p
     , m_time(hours, minutes, seconds)
     , m_timeLabel(new QLabel(this))
     , m_closeButton(new QPushButton(this))
+    , m_restartBtn(new QPushButton(this))
     , m_finished(false)
     , m_flashCount(0)
 {
     setupUI();
+    m_initTime = m_time;
     
     connect(m_timer, &QTimer::timeout, this, &CountdownWindow::onTimerTimeout);
     connect(m_closeButton, &QPushButton::clicked, this, &CountdownWindow::onCloseClicked);
+    connect(m_restartBtn, &QPushButton::clicked, this, &CountdownWindow::onRestartClicked);
     connect(ConfigManager::instance(), &ConfigManager::configChanged,
             this, [&](){updateTimeStyle();});
     
@@ -70,7 +73,7 @@ void CountdownWindow::setupUI()
     m_closeButton->setIcon(QIcon(":/icons/quit.svg"));
     m_closeButton->setIconSize(QSize(15, 15));
 
-    m_closeButton->setStyleSheet(
+    /*m_closeButton->*/setStyleSheet(
         "QPushButton {"
         "    background: none;"
         "    border: none; border-radius: 10px;"
@@ -82,9 +85,15 @@ void CountdownWindow::setupUI()
         "    background: none;"
         "}"
     );
+
+    m_restartBtn->setFixedSize(30, 30);
+    m_restartBtn->setIcon(QIcon(":/icons/restart.svg"));
+    m_restartBtn->setIconSize(QSize(15, 15));
+    m_restartBtn->hide();
     
     auto *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
+    buttonLayout->addWidget(m_restartBtn);
     buttonLayout->addWidget(m_closeButton);
     // buttonLayout->setContentsMargins(0, 0, 10, 0);
     
@@ -162,6 +171,15 @@ void CountdownWindow::onCloseClicked()
     close();
 }
 
+void CountdownWindow::onRestartClicked()
+{
+    AudioPlayer::instance()->stop();
+    m_time = m_initTime;
+    m_restartBtn->hide();
+    m_timer->start(1000);
+    updateDisplay();
+}
+
 void CountdownWindow::onFinished()
 {
     m_flashCount++;
@@ -169,9 +187,10 @@ void CountdownWindow::onFinished()
     
     if (m_flashCount < 10) {
         QTimer::singleShot(300, this, &CountdownWindow::onFinished);
-    } /*else {
-        close();
-    }*/
+    } else {
+        // close();
+        m_restartBtn->show();
+    }
 }
 
 void CountdownWindow::updateDisplay()
