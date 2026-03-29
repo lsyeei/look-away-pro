@@ -20,25 +20,32 @@ CountdownInputDialog::~CountdownInputDialog()
 void CountdownInputDialog::setupUI()
 {
     setWindowTitle("设置倒计时");
-    setFixedSize(300, 150);
     
     m_hourSpinBox->setRange(0, 23);
     m_hourSpinBox->setSuffix(" 时");
     m_hourSpinBox->setValue(0);
+    m_hourSpinBox->setAlignment(Qt::AlignRight);
+    m_hourSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     
     m_minuteSpinBox->setRange(0, 59);
     m_minuteSpinBox->setSuffix(" 分");
     m_minuteSpinBox->setValue(5);
+    m_minuteSpinBox->setAlignment(Qt::AlignRight);
+    m_minuteSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     
     m_secondSpinBox->setRange(0, 59);
     m_secondSpinBox->setSuffix(" 秒");
     m_secondSpinBox->setValue(0);
+    m_secondSpinBox->setAlignment(Qt::AlignRight);
+    m_secondSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     
     auto *timeLayout = new QHBoxLayout();
     timeLayout->addWidget(m_hourSpinBox);
+    timeLayout->addWidget(new QLabel(":"));
     timeLayout->addWidget(m_minuteSpinBox);
+    timeLayout->addWidget(new QLabel(":"));
     timeLayout->addWidget(m_secondSpinBox);
-    timeLayout->setSpacing(10);
+    timeLayout->setSpacing(0);
     
     auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

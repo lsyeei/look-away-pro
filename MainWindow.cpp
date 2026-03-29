@@ -221,7 +221,7 @@ void MainWindow::onQuit()
 void MainWindow::onShowTimer()
 {
     if (!m_timerWindow) {
-        m_timerWindow = new TimerWindow(nullptr);  // Use nullptr instead of this
+        m_timerWindow = new TimerWindow(this);
         connect(m_timerWindow, &QWidget::destroyed, [this]() {
             m_timerWindow = nullptr;
         });
@@ -253,7 +253,7 @@ void MainWindow::onShowCountdown()
                 m_countdownWindow->deleteLater();
             }
             
-            m_countdownWindow = new CountdownWindow(hours, minutes, seconds, nullptr);  // Use nullptr instead of this
+            m_countdownWindow = new CountdownWindow(hours, minutes, seconds, this);
             
             // Ensure window is visible and not minimized
             m_countdownWindow->setWindowState(Qt::WindowActive);

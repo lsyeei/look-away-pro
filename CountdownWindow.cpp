@@ -60,7 +60,7 @@ void CountdownWindow::updateTimeStyle()
 
 void CountdownWindow::setupUI()
 {
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Dialog);
     setAttribute(Qt::WA_TranslucentBackground);
     
     // Ensure minimum size
