@@ -82,8 +82,12 @@ MainWindow::MainWindow(QWidget *parent)
     }
     connect(m_screenMonitor, &ScreenStateMonitor::screenStateChanged, this, &MainWindow::onScreenStateChanged);
     
-    // Start timer after everything is initialized
+    // Start timer after everything is initialized,but screen must not lock
     m_timerManager->start();
+    // if user not login, pause timer
+    if (m_screenMonitor->isUserLoggedIn()){
+        m_timerManager->pause();
+    }
     
     // Minimize to system tray after starting timer (only if tray is available)
     if (trayAvailable) {
