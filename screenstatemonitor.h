@@ -50,11 +50,13 @@ public:
     // 检查当前用户是否已登录系统（未在锁屏界面）
     // 主要用于屏保退出后判断是否需要密码解锁
     bool isUserLoggedIn() const;
+    bool isScreenLocked() const;
 
 private:
     // 平台相关初始化/销毁
     void initPlatformMonitor();
     void destroyPlatformMonitor();
+    int sessionLockeState() const;
 
 #if defined(Q_OS_WIN)
     // Windows：窗口过程函数（处理系统消息）

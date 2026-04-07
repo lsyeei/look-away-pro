@@ -2,6 +2,7 @@
 #include "AudioPlayer.h"
 #include <QApplication>
 #include <QIcon>
+#include <QLoggingCategory>
 
 int main(int argc, char *argv[])
 {

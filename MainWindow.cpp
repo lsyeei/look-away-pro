@@ -83,9 +83,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_screenMonitor, &ScreenStateMonitor::screenStateChanged, this, &MainWindow::onScreenStateChanged);
     
     // Start timer after everything is initialized,but screen must not lock
-    m_timerManager->start();
+    m_timerManager->start();//qDebug() << __FUNCTION__ << "timer started;" << m_screenMonitor->isUserLoggedIn() << m_screenMonitor->isScreenLocked();
     // if user not login, pause timer
-    if (m_screenMonitor->isUserLoggedIn()){
+    if (!m_screenMonitor->isUserLoggedIn() || m_screenMonitor->isScreenLocked()){//qDebug() << __FUNCTION__ << "not login paused;";
         m_timerManager->pause();
     }
     

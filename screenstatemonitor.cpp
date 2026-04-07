@@ -1,4 +1,4 @@
-// 确保Windows头文件在Qt之前包含
+// 确保 Windows 头文件在 Qt 之前包含
 #if defined(_WIN32) || defined(Q_OS_WIN)
 #ifndef Q_OS_WIN
 #define Q_OS_WIN
@@ -14,9 +14,51 @@
 
 // Compatibility definitions for MinGW
 // Some MinGW versions don't define WTS_CONNECTSTATE_CLASS properly
-#ifndef WTS_CONNECTSTATE_CLASS
-#define WTS_CONNECTSTATE_CLASS static_cast<WTS_INFO_CLASS>(8)
+// WTS_CONNECTSTATE_CLASS corresponds to enum value 8
+// #ifndef WTS_CONNECTSTATE_CLASS
+// #define WTS_CONNECTSTATE_CLASS static_cast<WTS_INFO_CLASS>(8)
+// #endif
+
+#ifndef WTSSessionInfoEx
+#define WTSSessionInfoEx static_cast<WTS_INFO_CLASS>(25)
 #endif
+
+// 定义 WTSINFOEX_LEVEL1_W 结构体
+typedef struct _WTSINFOEX_LEVEL1_W {
+    DWORD                  SessionId;
+    WTS_CONNECTSTATE_CLASS SessionState;
+    DWORD                  SessionFlags;      // 关键：0=锁定，1=未锁定
+    WCHAR                  WinStationName[32 + 1];
+    WCHAR                  UserName[20 + 1];
+    WCHAR                  DomainName[17 + 1];
+    LARGE_INTEGER          LogonTime;
+    LARGE_INTEGER          ConnectTime;
+    LARGE_INTEGER          DisconnectTime;
+    LARGE_INTEGER          LastInputTime;
+    LARGE_INTEGER          CurrentTime;
+    DWORD                  IncomingBytes;
+    DWORD                  OutgoingBytes;
+    DWORD                  IncomingFrames;
+    DWORD                  OutgoingFrames;
+    DWORD                  IncomingCompressedBytes;
+    DWORD                  OutgoingCompressedBytes;
+} WTSINFOEX_LEVEL1_W, *PWTSINFOEX_LEVEL1_W;
+
+// 定义 WTSINFOEXW 结构体
+typedef struct _WTSINFOEXW {
+    DWORD Level;  // 必须为 1
+    union {
+        WTSINFOEX_LEVEL1_W WTSInfoExLevel1;
+    } Data;
+} WTSINFOEXW, *PWTSINFOEXW;
+
+// 定义 SessionFlags 常量值
+#ifndef WTS_SESSIONSTATE_LOCK
+#define WTS_SESSIONSTATE_UNKNOWN ((LONG)0xFFFFFFFF)
+#define WTS_SESSIONSTATE_LOCK    0
+#define WTS_SESSIONSTATE_UNLOCK  1
+#endif
+
 #endif
 
 #include "ScreenStateMonitor.h"
@@ -199,7 +241,6 @@ LRESULT CALLBACK ScreenStateMonitor::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
         return 0;
     }
-
     ScreenStateMonitor *monitor = (ScreenStateMonitor*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
     if (!monitor) return DefWindowProc(hwnd, msg, wParam, lParam);
 
@@ -215,9 +256,12 @@ LRESULT CALLBACK ScreenStateMonitor::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
         case WTS_SESSION_LOCK: // 锁屏
             emit monitor->screenStateChanged(ScreenState::Locked);
             break;
+        // case WTS_SESSION_LOGON:
         case WTS_SESSION_UNLOCK: // 解锁
             emit monitor->screenStateChanged(ScreenState::UnlockedFromLock);
             break;
+        // case WTS_SESSION_LOGOFF:
+        //     break;
         }
         break;
         
@@ -267,7 +311,9 @@ bool ScreenStateMonitor::isUserLoggedIn() const
     
     // Use WTS_CONNECTSTATE_CLASS (enum value) to query connection state
     // This is supported on all Windows versions
-    BOOL result = WTSQuerySessionInformation(hServer, sessionId, WTS_CONNECTSTATE_CLASS, &pBuffer, &bytesReturned);
+    BOOL result = WTSQuerySessionInformation(hServer, sessionId,
+                                             static_cast<WTS_INFO_CLASS>(8),
+                                             &pBuffer, &bytesReturned);
     if (result && pBuffer && bytesReturned >= sizeof(DWORD)) {
         // The returned data is a DWORD representing the connection state
         DWORD connectStateValue = *reinterpret_cast<DWORD*>(pBuffer);
@@ -283,7 +329,7 @@ bool ScreenStateMonitor::isUserLoggedIn() const
         // For other states (1-3, 5-7, 9), continue to fallback check
     }
     
-    // Fallback: Check if we can get user name - if not, likely locked
+    // Fallback: Check if we can get user name - if not, assume user is logged in but screen may be locked
     pBuffer = NULL;
     bytesReturned = 0;
     result = WTSQuerySessionInformation(hServer, sessionId, WTSUserName, &pBuffer, &bytesReturned);
@@ -291,16 +337,13 @@ bool ScreenStateMonitor::isUserLoggedIn() const
         QString userName = QString::fromWCharArray(pBuffer);
         WTSFreeMemory(pBuffer);
         
-        // If we can get a username, user is likely logged in
+        // If we can get a username, user is logged in
         return !userName.isEmpty();
     }
     
-    // If we can't get user name, assume session is locked
-    if (pBuffer) {
-        WTSFreeMemory(pBuffer);
-    }
-    
-    return false;
+    // If we can't get user name, assume user is logged in but screen may be locked
+    // This is a fallback - in production, you might want to use other methods
+    return true;
     
 #elif defined(Q_OS_LINUX)
     // Linux: Check if screen is locked via DBus
@@ -366,6 +409,198 @@ bool ScreenStateMonitor::isUserLoggedIn() const
     // Other platforms: default to true
     return true;
 #endif
+}
+
+bool ScreenStateMonitor::isScreenLocked() const
+{
+#if defined(Q_OS_WIN)
+    // Windows: 使用 WTS API 检测锁屏状态
+    // 方法：查询会话状态 WTS_SESSION_LOCK
+    int state = sessionLockeState();
+    if (state >= 0) {
+        return state==1?true:false;
+    }
+    
+    // 备用方法：检查是否有前台窗口（锁屏时通常没有前台窗口）
+    HWND foregroundWnd = GetForegroundWindow();
+    if (!foregroundWnd) {qDebug() << __FUNCTION__ << "isScreenLocked true 2";
+        // 没有前台窗口，可能是锁屏状态
+        return true;
+    }
+    
+    // 进一步检查：尝试获取用户名，如果获取失败可能是锁屏
+    HANDLE hServer = reinterpret_cast<HANDLE>(WTS_CURRENT_SERVER_HANDLE);
+    DWORD sessionId = WTS_CURRENT_SESSION;
+
+    LPWSTR pBuffer = NULL;
+    DWORD bytesReturned = 0;
+    pBuffer = NULL;
+    bytesReturned = 0;
+    BOOL result = WTSQuerySessionInformationW(hServer,  sessionId, WTSUserName,
+        &pBuffer, &bytesReturned
+    );
+    if (result && pBuffer && bytesReturned > 0) {
+        QString userName = QString::fromWCharArray(pBuffer);
+        WTSFreeMemory(pBuffer);
+        qDebug() << __FUNCTION__ << "isScreenLocked false 1";
+        // 如果获取到用户名，说明用户已登录且未锁屏
+        return false;
+    }
+    qDebug() << __FUNCTION__ << "isScreenLocked false 2";
+    // 如果无法获取用户名，假设未检测到锁屏（可能是锁屏但 API 无法获取信息）
+    // 这是一个保守的假设，避免误判
+    return false;
+    
+#elif defined(Q_OS_LINUX)
+    // Linux: 使用 DBus 检测锁屏状态
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    
+    // 检查 GNOME 锁屏
+    QDBusInterface login1("org.freedesktop.login1", "/org/freedesktop/login1/session/self",
+                          "org.freedesktop.login1.Session", bus);
+    if (login1.isValid()) {
+        QDBusReply<bool> reply = login1.call("LockHint");
+        if (reply.isValid()) {
+            return reply.value(); // 返回 true 表示已锁屏
+        }
+    }
+    
+    // 检查 KDE 锁屏
+    QDBusInterface kdeLock("org.kde.kwin", "/KWin/ScreenSaver",
+                           "org.kde.kwin.ScreenSaver", bus);
+    if (kdeLock.isValid()) {
+        QDBusReply<bool> reply = kdeLock.call("IsLocked");
+        if (reply.isValid()) {
+            return reply.value(); // 返回 true 表示已锁屏
+        }
+    }
+    
+    // 检查 GNOME 屏保（屏保启动通常意味着锁屏）
+    QDBusInterface gnomeScreenSaver("org.gnome.ScreenSaver", "/org/gnome/ScreenSaver",
+                                     "org.gnome.ScreenSaver", bus);
+    if (gnomeScreenSaver.isValid()) {
+        QDBusReply<bool> reply = gnomeScreenSaver.call("GetActive");
+        if (reply.isValid()) {
+            return reply.value(); // 屏保启动时返回 true
+        }
+    }
+    
+    // 检查 KDE 屏保
+    QDBusInterface kdeScreenSaver("org.kde.screensaver", "/ScreenSaver",
+                                   "org.freedesktop.ScreenSaver", bus);
+    if (kdeScreenSaver.isValid()) {
+        QDBusReply<bool> reply = kdeScreenSaver.call("GetActive");
+        if (reply.isValid()) {
+            return reply.value(); // 屏保启动时返回 true
+        }
+    }
+    
+    // 默认返回 false（未检测到锁屏）
+    return false;
+    
+#elif defined(Q_OS_MACOS)
+    // macOS: 使用 CoreFoundation 检测锁屏状态
+    typedef id (*OBJC_MSG_SEND_ID)(id, SEL);
+    typedef id (*OBJC_MSG_SEND_ID_SEL_ID)(id, SEL, id);
+    typedef BOOL (*OBJC_MSG_SEND_BOOL)(id, SEL);
+    
+    OBJC_MSG_SEND_ID msgSend_id = (OBJC_MSG_SEND_ID)objc_msgSend;
+    OBJC_MSG_SEND_ID_SEL_ID msgSend_id_sel_id = (OBJC_MSG_SEND_ID_SEL_ID)objc_msgSend;
+    OBJC_MSG_SEND_BOOL msgSend_bool = (OBJC_MSG_SEND_BOOL)objc_msgSend;
+    
+    id sessionDict = msgSend_id((id)objc_getClass("CGSSession"), 
+                                 sel_registerName("copyCurrentSessionDictionary"));
+    if (sessionDict) {
+        // 检查锁屏状态
+        id key = msgSend_id((id)objc_getClass("NSString"), 
+                             sel_registerName("stringWithUTF8String:"), 
+                             "CGSSessionScreenIsLocked");
+        id lockedValue = msgSend_id_sel_id(sessionDict, 
+                                            sel_registerName("objectForKey:"), 
+                                            key);
+        if (lockedValue) {
+            BOOL isLocked = msgSend_bool(lockedValue, sel_registerName("boolValue"));
+            return isLocked; // 返回 true 表示已锁屏
+        }
+    }
+    
+    // 备用方法：检查屏幕保护程序状态
+    id screensaverDict = msgSend_id((id)objc_getClass("CGSSession"), 
+                                     sel_registerName("copyCurrentSessionDictionary"));
+    if (screensaverDict) {
+        id screensaverKey = msgSend_id((id)objc_getClass("NSString"), 
+                                        sel_registerName("stringWithUTF8String:"), 
+                                        "CGSSessionScreensaverActive");
+        id screensaverValue = msgSend_id_sel_id(screensaverDict, 
+                                                 sel_registerName("objectForKey:"), 
+                                                 screensaverKey);
+        if (screensaverValue) {
+            BOOL screensaverActive = msgSend_bool(screensaverValue, sel_registerName("boolValue"));
+            return screensaverActive; // 屏保激活时返回 true
+        }
+    }
+    
+    // 默认返回 false（未检测到锁屏）
+    return false;
+    
+#else
+    // 其他平台：默认返回 false
+    return false;
+#endif
+}
+
+/**
+ * @brief 判断当前屏幕是否处于锁定状态
+ * @return 1=已锁定, 0=未锁定, -1=错误
+ */
+int ScreenStateMonitor::sessionLockeState() const
+{
+    PWTSINFOEXW pInfoEx = nullptr;
+    DWORD bytesReturned = 0;
+    int lockState = -1;
+
+    // 查询当前会话的扩展信息
+    if (WTSQuerySessionInformationW(
+            WTS_CURRENT_SERVER_HANDLE,
+            WTS_CURRENT_SESSION,
+            WTSSessionInfoEx,
+            (LPWSTR*)&pInfoEx,
+            &bytesReturned))
+    {
+        if (pInfoEx && pInfoEx->Level == 1)
+        {
+            DWORD sessionFlags = pInfoEx->Data.WTSInfoExLevel1.SessionFlags;
+
+            // 获取 Windows 版本
+            bool isWindows7 = false;
+            DWORD version = GetVersion();
+            DWORD major = LOBYTE(LOWORD(version));
+            DWORD minor = HIBYTE(LOWORD(version));
+
+            if (major == 6 && minor == 1)  // Windows 7 / Server 2008 R2
+            {
+                isWindows7 = true;
+            }
+
+            // Windows 7 上标志是反的
+            if (isWindows7)
+            {
+                lockState = sessionFlags == WTS_SESSIONSTATE_UNLOCK?0:1;  // 值为 1
+            }
+            else
+            {
+                lockState = sessionFlags == WTS_SESSIONSTATE_LOCK?1:0;    // 值为 0
+            }
+        }
+        WTSFreeMemory(pInfoEx);
+    }
+    else
+    {
+        // 查询失败，可能的原因：API 不支持
+        qDebug() << "WTSQuerySessionInformation failed, error:" << GetLastError();
+    }
+
+    return lockState;
 }
 
 #if defined(Q_OS_LINUX)
