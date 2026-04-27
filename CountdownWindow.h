@@ -14,6 +14,10 @@ public:
     explicit CountdownWindow(int hours, int minutes, int seconds, QWidget *parent = nullptr);
     ~CountdownWindow();
 
+    // QObject interface
+    // bool eventFilter(QObject *watched, QEvent *event) override;
+    bool event(QEvent *event) override;
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -31,6 +35,7 @@ private:
     void updateDisplay();
     void playAlertSound();
     void flashWindow();
+    void showButton(bool flag);
 
     QTimer *m_timer;
     QTime m_time;

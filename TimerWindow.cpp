@@ -23,7 +23,7 @@ TimerWindow::TimerWindow(QWidget *parent)
     , m_started(false)
 {
     setupUI();
-    
+
     connect(m_timer, &QTimer::timeout, this, &TimerWindow::onTimerTimeout);
     connect(m_playPauseButton, &QPushButton::clicked, this, &TimerWindow::onPlayPauseClicked);
     connect(m_restartButton, &QPushButton::clicked, this, &TimerWindow::onStopClicked);
@@ -55,10 +55,18 @@ void TimerWindow::updateTimeStyle()
     m_timeLabel->setStyleSheet(QString("color: %1;").arg(textColor.name()));
 }
 
+void TimerWindow::showButton(bool flag)
+{
+    m_playPauseButton->setVisible(flag);
+    m_restartButton->setVisible(flag);
+    m_closeButton->setVisible(flag);
+}
+
 void TimerWindow::setupUI()
 {
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Dialog);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::Tool);
     setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_Hover, true);
     
     // Ensure minimum size
     setMinimumSize(200, 100);
@@ -73,8 +81,11 @@ void TimerWindow::setupUI()
     m_closeButton->setFixedSize(30, 30);
     
     m_playPauseButton->setIcon(QIcon(":/icons/play.svg"));
+    m_playPauseButton->setToolTip(tr("开始"));
     m_restartButton->setIcon(QIcon(":/icons/restart.svg"));
+    m_restartButton->setToolTip(tr("重置"));
     m_closeButton->setIcon(QIcon(":/icons/quit.svg"));
+    m_closeButton->setToolTip(tr("关闭"));
     
     m_playPauseButton->setIconSize(QSize(15, 15));
     m_restartButton->setIconSize(QSize(15, 15));
@@ -106,9 +117,10 @@ void TimerWindow::setupUI()
     auto *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_timeLabel);
     mainLayout->addLayout(buttonLayout);
-    mainLayout->setSpacing(10);
-    mainLayout->setContentsMargins(20, 10, 20, 20);
+    mainLayout->setSpacing(0);
+    mainLayout->setContentsMargins(20, 10, 20, 10);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+    showButton(false);
     
     setLayout(mainLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -204,9 +216,29 @@ void TimerWindow::updatePlayPauseButton()
 {
     if (!m_started) {
         m_playPauseButton->setIcon(QIcon(":/icons/play.svg"));
+        m_playPauseButton->setToolTip(tr("开始"));
     } else if (m_running) {
         m_playPauseButton->setIcon(QIcon(":/icons/pause2.svg"));
+        m_playPauseButton->setToolTip(tr("暂停"));
     } else {
         m_playPauseButton->setIcon(QIcon(":/icons/play.svg"));
+        m_playPauseButton->setToolTip(tr("开始"));
     }
+}
+
+bool TimerWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::WindowDeactivate) {
+        // 窗口失去焦点时重新激活
+        QTimer::singleShot(2000, this, [this]() {
+            raise();
+            activateWindow();
+        });
+    }
+    if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverMove) {
+        showButton(true);
+    } else if (event->type() == QEvent::HoverLeave){
+        showButton(false);
+    }
+    return QWidget::event(event);
 }

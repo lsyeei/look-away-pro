@@ -23,6 +23,9 @@ public:
     int exec() override;
     void preview();
 
+    // QObject interface
+    bool event(QEvent *event) override;
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;

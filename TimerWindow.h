@@ -15,6 +15,9 @@ public:
     explicit TimerWindow(QWidget *parent = nullptr);
     ~TimerWindow();
 
+    // QObject interface
+    bool event(QEvent *event) override;
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -31,6 +34,8 @@ private:
     void setupUI();
     void updateDisplay();
     void updatePlayPauseButton();
+    void updateTimeStyle();
+    void showButton(bool flag);
 
     QTimer *m_timer;
     QTime m_time;
@@ -42,7 +47,6 @@ private:
     bool m_running;
     bool m_started;
     QPoint m_dragPosition;
-    void updateTimeStyle();
 };
 
 #endif // TIMERWINDOW_H

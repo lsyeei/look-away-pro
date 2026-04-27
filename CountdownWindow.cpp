@@ -60,8 +60,9 @@ void CountdownWindow::updateTimeStyle()
 
 void CountdownWindow::setupUI()
 {
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Dialog);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::Tool);
     setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_Hover, true);
     
     // Ensure minimum size
     setMinimumSize(200, 100);
@@ -72,8 +73,9 @@ void CountdownWindow::setupUI()
     m_closeButton->setFixedSize(30, 30);
     m_closeButton->setIcon(QIcon(":/icons/quit.svg"));
     m_closeButton->setIconSize(QSize(15, 15));
+    m_closeButton->setToolTip(tr("关闭"));
 
-    /*m_closeButton->*/setStyleSheet(
+    setStyleSheet(
         "QPushButton {"
         "    background: none;"
         "    border: none; border-radius: 10px;"
@@ -87,6 +89,7 @@ void CountdownWindow::setupUI()
     );
 
     m_restartBtn->setFixedSize(30, 30);
+    m_restartBtn->setToolTip(tr("重新开始"));
     m_restartBtn->setIcon(QIcon(":/icons/restart.svg"));
     m_restartBtn->setIconSize(QSize(15, 15));
     m_restartBtn->hide();
@@ -98,11 +101,12 @@ void CountdownWindow::setupUI()
     // buttonLayout->setContentsMargins(0, 0, 10, 0);
     
     auto *mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(buttonLayout);
     mainLayout->addWidget(m_timeLabel);
-    mainLayout->setSpacing(6);
+    mainLayout->addLayout(buttonLayout);
+    mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(20, 10, 20, 10);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+    showButton(false);
     
     setLayout(mainLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -176,6 +180,7 @@ void CountdownWindow::onRestartClicked()
     AudioPlayer::instance()->stop();
     m_time = m_initTime;
     m_restartBtn->hide();
+    m_finished = false;
     m_timer->start(1000);
     updateDisplay();
 }
@@ -213,4 +218,27 @@ void CountdownWindow::flashWindow()
 {
     m_flashCount = 0;
     onFinished();
+}
+
+void CountdownWindow::showButton(bool flag)
+{
+    m_closeButton->setVisible(flag);
+    m_restartBtn->setVisible(flag && m_finished);
+}
+
+bool CountdownWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverMove) {
+        showButton(true);
+    }else if(event->type() == QEvent::HoverLeave){
+        showButton(false);
+    }
+    if (event->type() == QEvent::WindowDeactivate) {
+        // 窗口失去焦点时重新激活
+        QTimer::singleShot(2000, this, [this]() {
+            raise();
+            activateWindow();
+        });
+    }
+    return QWidget::event(event);
 }

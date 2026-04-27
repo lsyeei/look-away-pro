@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QUrl>
 #include <QKeyEvent>
+#include <QApplication>
 
 ReminderDialog::ReminderDialog(QWidget *parent)
     : QDialog(parent)
@@ -17,7 +18,7 @@ ReminderDialog::ReminderDialog(QWidget *parent)
     , m_remainingTime(20)
     , m_config(nullptr)
 {
-    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog | Qt::Tool);
     setAttribute(Qt::WA_TranslucentBackground);
     setModal(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -54,9 +55,6 @@ ReminderDialog::ReminderDialog(QWidget *parent)
         m_countdownTimer.stop();
         accept();});
     mainLayout->addWidget(m_closeButton, 0, Qt::AlignCenter);
-
-    // mainLayout->addStretch();
-
 
     connect(&m_countdownTimer, &QTimer::timeout, this, &ReminderDialog::updateCountdown);
     updateMessageFont();
@@ -210,4 +208,16 @@ void ReminderDialog::onBreakFinished()
 
     // Always close dialog when break finishes regardless of forceRest setting
     accept();
+}
+
+bool ReminderDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::WindowDeactivate) {
+        // 窗口失去焦点时重新激活
+        QTimer::singleShot(100, this, [this]() {
+            raise();
+            activateWindow();
+        });
+    }
+    return QDialog::event(event);
 }
