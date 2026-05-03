@@ -20,7 +20,7 @@ TimerWindow::TimerWindow(QWidget *parent)
     , m_restartButton(new QPushButton(this))
     , m_closeButton(new QPushButton(this))
     , m_running(false)
-    , m_started(false)
+    , m_started(false), m_saverRunning(false)
 {
     setupUI();
 
@@ -30,6 +30,9 @@ TimerWindow::TimerWindow(QWidget *parent)
     connect(m_closeButton, &QPushButton::clicked, this, &TimerWindow::onCloseClicked);
     connect(ConfigManager::instance(), &ConfigManager::configChanged,
             this, [&](){updateTimeStyle();});
+    m_timer->setInterval(1000);
+    m_timer->start();
+    m_timeLabel->setText(m_time.toString("HH:mm:ss"));
 }
 
 TimerWindow::~TimerWindow()
@@ -67,6 +70,9 @@ void TimerWindow::setupUI()
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Dialog | Qt::Tool);
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_Hover, true);
+    // 不接受焦点
+    setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_ShowWithoutActivating);
     
     // Ensure minimum size
     setMinimumSize(200, 100);
@@ -79,6 +85,9 @@ void TimerWindow::setupUI()
     m_playPauseButton->setFixedSize(30, 30);
     m_restartButton->setFixedSize(30, 30);
     m_closeButton->setFixedSize(30, 30);
+    m_playPauseButton->setDefault(false);
+    m_restartButton->setDefault(false);
+    m_closeButton->setDefault(false);
     
     m_playPauseButton->setIcon(QIcon(":/icons/play.svg"));
     m_playPauseButton->setToolTip(tr("开始"));
@@ -151,8 +160,10 @@ void TimerWindow::mouseMoveEvent(QMouseEvent *event)
 
 void TimerWindow::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
+    raise();
     
     painter.setBrush(QBrush(QColor(0, 0, 0, 150)));
     painter.setPen(Qt::NoPen);
@@ -167,7 +178,13 @@ void TimerWindow::closeEvent(QCloseEvent *event)
 
 void TimerWindow::onTimerTimeout()
 {
-    m_time = m_time.addSecs(1);
+    if(m_started && m_running && !m_saverRunning){
+        m_time = m_time.addSecs(1);
+    }
+#if defined(Q_OS_WIN)
+    ::SystemParametersInfo(SPI_GETSCREENSAVERRUNNING, 0, &m_saverRunning, 0);
+    m_saverRunning &= ConfigManager::instance()->smartTimer();
+#endif
     updateDisplay();
 }
 
@@ -176,34 +193,24 @@ void TimerWindow::onPlayPauseClicked()
     if (!m_started) {
         m_started = true;
         m_running = true;
-        m_timer->start(1000);
         updatePlayPauseButton();
         return;
     }
-    
-    if (m_running) {
-        m_timer->stop();
-        m_running = false;
-    } else {
-        m_timer->start(1000);
-        m_running = true;
-    }
+    m_running = !m_running;
     updatePlayPauseButton();
 }
 
 void TimerWindow::onStopClicked()
 {
-    m_timer->stop();
-    m_running = false;
-    m_started = false;
     m_time.setHMS(0, 0, 0);
     updateDisplay();
+    m_started = false;
+    m_running = false;
     updatePlayPauseButton();
 }
 
 void TimerWindow::onCloseClicked()
 {
-    m_timer->stop();
     close();
 }
 
@@ -232,7 +239,7 @@ bool TimerWindow::event(QEvent *event)
         // 窗口失去焦点时重新激活
         QTimer::singleShot(2000, this, [this]() {
             raise();
-            activateWindow();
+            // activateWindow();
         });
     }
     if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverMove) {
@@ -241,4 +248,25 @@ bool TimerWindow::event(QEvent *event)
         showButton(false);
     }
     return QWidget::event(event);
+}
+
+void TimerWindow::onScreenStateChanged(ScreenState state)
+{
+    if (!ConfigManager::instance()->smartTimer() || !m_started){
+        return;
+    }
+    // 智能计时模式：锁屏/屏保时暂停，解锁后恢复
+    switch (state) {
+    case ScreenState::ScreenSaverStart:
+    case ScreenState::Locked:
+        // pauseTimer(true);
+        m_running = false;
+        break;
+    case ScreenState::ScreenSaverStop:
+    case ScreenState::UnlockedFromLock:
+    case ScreenState::Unlocked:
+        m_running = true;
+        // pauseTimer(false);
+        break;
+    }
 }

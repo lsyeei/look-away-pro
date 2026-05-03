@@ -47,10 +47,10 @@ SettingsDialog::SettingsDialog(QWidget *parent)
             [this](int index) { if (m_config) m_config->setScreenSaverOption(index); });
     connect(ui->lockScreenComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), 
             [this](int index) { if (m_config) m_config->setLockScreenOption(index); });
-    connect(ui->autoStartCheckBox, &QCheckBox::stateChanged, 
-            [this](int state) { if (m_config) m_config->setAutoStart(state == Qt::Checked); });
-    connect(ui->forceRestCheckBox, &QCheckBox::stateChanged, 
-            [this](int state) { if (m_config) m_config->setForceRest(state == Qt::Checked); });
+    connect(ui->autoStartCheckBox, &QCheckBox::checkStateChanged,
+            [this](Qt::CheckState state) { if (m_config) m_config->setAutoStart(state == Qt::Checked); });
+    connect(ui->forceRestCheckBox, &QCheckBox::checkStateChanged,
+            [this](Qt::CheckState state) { if (m_config) m_config->setForceRest(state == Qt::Checked); });
     connect(ui->fontComboBox, &QComboBox::currentTextChanged, 
             [this](const QString& text) { if (m_config) m_config->setFontFamily(text); });
     connect(ui->fontSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), 
@@ -71,6 +71,8 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     connect(ui->timerColorButton, &QPushButton::clicked, this, &SettingsDialog::onTimerColorButtonClicked);
     connect(ui->countdownColorButton, &QPushButton::clicked, this, &SettingsDialog::onCountdownColorButtonClicked);
     connect(ui->countdownSoundButton, &QPushButton::clicked, this, &SettingsDialog::onBrowseCountdownSound);
+    connect(ui->smartTimer, &QCheckBox::checkStateChanged,
+            [this](Qt::CheckState state) { if (m_config) m_config->setSmartTimer(state == Qt::Checked); });
 }
 
 void SettingsDialog::initializeFontComboBox()
@@ -123,6 +125,9 @@ void SettingsDialog::loadSettings()
     ui->countdownFontComboBox->setCurrentText(m_config->countdownFontFamily());
     ui->countdownFontSizeSpinBox->setValue(m_config->countdownFontSize());
     ui->countdownSoundLineEdit->setText(m_config->countdownAlertSound());
+    
+    // 智能计时
+    ui->smartTimer->setChecked(m_config->smartTimer());
     
     // Store colors for button styling
     m_timerTextColor = m_config->timerTextColor();

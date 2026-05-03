@@ -29,9 +29,9 @@ private slots:
     void onPauseResume();
     void onShowAbout();
     void onQuit();
-    void onTimerComplete();
-    void onSessionStart();
-    void onSessionEnd();
+    void onLookAwayTrigger();
+    void onWorkStart();
+    void onWorkEnd();
     void onScreenStateChanged(ScreenState state);
     void onShowTimer();
     void onShowCountdown();

@@ -54,6 +54,7 @@ void ConfigManager::setDefaultValues()
     m_countdownFontSize = 24;
     m_countdownTextColor = QColor(255, 255, 255);
     m_countdownAlertSound = "";
+    m_smartTimer = false;
 }
 
 QString ConfigManager::configFilePath() const
@@ -150,6 +151,7 @@ void ConfigManager::loadConfig(bool reload)
         m_countdownTextColor = QColor(255, 255, 255);
     }
     m_countdownAlertSound = settings.firstChildElement("countdownAlertSound").text();
+    m_smartTimer = settings.firstChildElement("smartTimer").text().toInt() == 1;
     
     emit configChanged();
     loaded = true;
@@ -250,6 +252,10 @@ void ConfigManager::saveConfig()
     QDomElement countdownAlertSound = doc.createElement("countdownAlertSound");
     countdownAlertSound.appendChild(doc.createTextNode(m_countdownAlertSound));
     settings.appendChild(countdownAlertSound);
+    
+    QDomElement smartTimer = doc.createElement("smartTimer");
+    smartTimer.appendChild(doc.createTextNode(m_smartTimer ? "1" : "0"));
+    settings.appendChild(smartTimer);
     
     QFile file(configPath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -439,6 +445,14 @@ void ConfigManager::setCountdownAlertSound(const QString& soundFile)
 {
     if (m_countdownAlertSound != soundFile) {
         m_countdownAlertSound = soundFile;
+        emit configChanged();
+    }
+}
+
+void ConfigManager::setSmartTimer(bool enabled)
+{
+    if (m_smartTimer != enabled) {
+        m_smartTimer = enabled;
         emit configChanged();
     }
 }

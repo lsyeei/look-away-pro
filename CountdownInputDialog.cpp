@@ -9,6 +9,8 @@ CountdownInputDialog::CountdownInputDialog(QWidget *parent)
     , m_hourSpinBox(new QSpinBox(this))
     , m_minuteSpinBox(new QSpinBox(this))
     , m_secondSpinBox(new QSpinBox(this))
+    , m_endActionComboBox(new QComboBox(this))
+    , m_processEdit(new QLineEdit(this))
 {
     setupUI();
 }
@@ -46,6 +48,28 @@ void CountdownInputDialog::setupUI()
     timeLayout->addWidget(new QLabel(":"));
     timeLayout->addWidget(m_secondSpinBox);
     timeLayout->setSpacing(0);
+
+    // 结束动作
+    m_endActionComboBox->addItem("闪烁");
+    m_endActionComboBox->addItem("锁屏");
+    m_endActionComboBox->addItem("关闭进程");
+
+    m_processLabel = new QLabel("进程名");
+    m_processEdit->setPlaceholderText("如 notepad.exe");
+    m_processEdit->setClearButtonEnabled(true);
+    m_processEdit->setVisible(false);
+
+    auto *actionLayout = new QHBoxLayout();
+    actionLayout->addWidget(new QLabel("计时结束"));
+    actionLayout->addWidget(m_endActionComboBox);
+
+    auto *processLayout = new QHBoxLayout();
+    processLayout->addWidget(m_processLabel);
+    processLayout->addWidget(m_processEdit);
+    processLayout->setContentsMargins(0, 0, 0, 0);
+
+    connect(m_endActionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &CountdownInputDialog::onEndActionChanged);
     
     auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -53,11 +77,19 @@ void CountdownInputDialog::setupUI()
     
     auto *mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(timeLayout);
+    mainLayout->addLayout(actionLayout);
+    mainLayout->addLayout(processLayout);
     mainLayout->addWidget(buttonBox);
-    mainLayout->setSpacing(15);
+    mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(20, 20, 20, 20);
     
     setLayout(mainLayout);
+}
+
+void CountdownInputDialog::onEndActionChanged(int index)
+{
+    m_processLabel->setVisible(index == 2);
+    m_processEdit->setVisible(index == 2);
 }
 
 int CountdownInputDialog::hours() const
@@ -73,4 +105,14 @@ int CountdownInputDialog::minutes() const
 int CountdownInputDialog::seconds() const
 {
     return m_secondSpinBox->value();
+}
+
+int CountdownInputDialog::endAction() const
+{
+    return m_endActionComboBox->currentIndex();
+}
+
+QString CountdownInputDialog::killProcess() const
+{
+    return m_processEdit->text().trimmed();
 }

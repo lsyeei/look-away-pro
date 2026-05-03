@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>325</width>
-    <height>345</height>
+    <width>454</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -917,6 +917,60 @@ QCheckBox::indicator:checked:hover {
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="smartTimerLayout">
+         <item>
+          <widget class="QCheckBox" name="smartTimer">
+           <property name="toolTip">
+            <string>开启后，锁屏或屏保运行时自动暂停计时，解锁后自动继续</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox {
+    spacing: 8px;
+}
+
+QCheckBox::indicator {
+    width: 32px;
+    height: 16px;
+    border: none;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(:/icons/switch_off.svg);
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/icons/switch_on.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(:/icons/switch_off_hover.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(:/icons/switch_on_hover.svg);
+}</string>
+           </property>
+           <property name="text">
+            <string>智能计时</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="smartTimerSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
              <height>20</height>
             </size>
            </property>

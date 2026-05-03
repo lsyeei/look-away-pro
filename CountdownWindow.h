@@ -11,7 +11,9 @@ class CountdownWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit CountdownWindow(int hours, int minutes, int seconds, QWidget *parent = nullptr);
+    explicit CountdownWindow(int hours, int minutes, int seconds,
+                             int endAction = 0, const QString &killProcess = QString(),
+                             QWidget *parent = nullptr);
     ~CountdownWindow();
 
     // QObject interface
@@ -36,6 +38,7 @@ private:
     void playAlertSound();
     void flashWindow();
     void showButton(bool flag);
+    void executeEndAction();
 
     QTimer *m_timer;
     QTime m_time;
@@ -47,6 +50,8 @@ private:
     bool m_finished;
     QPoint m_dragPosition;
     int m_flashCount;
+    int m_endAction;
+    QString m_killProcess;
     void updateTimeStyle();
 };
 

@@ -68,9 +68,9 @@ MainWindow::MainWindow(QWidget *parent)
         qCritical("Failed to create TimerManager");
         return;
     }
-    connect(m_timerManager, &TimerManager::timerComplete, this, &MainWindow::onTimerComplete);
-    connect(m_timerManager, &TimerManager::sessionStart, this, &MainWindow::onSessionStart);
-    connect(m_timerManager, &TimerManager::sessionEnd, this, &MainWindow::onSessionEnd);
+    connect(m_timerManager, &TimerManager::lookAwayTrigger, this, &MainWindow::onLookAwayTrigger);
+    connect(m_timerManager, &TimerManager::workStart, this, &MainWindow::onWorkStart);
+    connect(m_timerManager, &TimerManager::workEnd, this, &MainWindow::onWorkEnd);
 
     loadSettings();
 
@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_screenMonitor, &ScreenStateMonitor::screenStateChanged, this, &MainWindow::onScreenStateChanged);
     
     // Start timer after everything is initialized,but screen must not lock
-    m_timerManager->start();//qDebug() << __FUNCTION__ << "timer started;" << m_screenMonitor->isUserLoggedIn() << m_screenMonitor->isScreenLocked();
+    m_timerManager->start();
     // if user not login, pause timer
     if (!m_screenMonitor->isUserLoggedIn() || m_screenMonitor->isScreenLocked()){//qDebug() << __FUNCTION__ << "not login paused;";
         m_timerManager->pause();
@@ -192,14 +192,9 @@ void MainWindow::onShowSettings()
 
 void MainWindow::onPauseResume()
 {
-    if (m_isPaused) {
-        m_timerManager->resume();
-        m_trayIcon->setPaused(false);
-    } else {
-        m_timerManager->pause();
-        m_trayIcon->setPaused(true);
-    }
+    m_timerManager->setAutoFlag(m_isPaused);
     m_isPaused = !m_isPaused;
+    m_trayIcon->setPaused(m_isPaused);
 }
 
 void MainWindow::onShowAbout()
@@ -229,7 +224,8 @@ void MainWindow::onShowTimer()
         connect(m_timerWindow, &QWidget::destroyed, [this]() {
             m_timerWindow = nullptr;
         });
-        qDebug() << "TimerWindow created";
+        connect(m_screenMonitor, &ScreenStateMonitor::screenStateChanged,
+                m_timerWindow, &TimerWindow::onScreenStateChanged);
     }
     
     // Ensure window is visible and not minimized
@@ -238,9 +234,6 @@ void MainWindow::onShowTimer()
     m_timerWindow->show();
     m_timerWindow->raise();
     m_timerWindow->activateWindow();
-    
-    qDebug() << "TimerWindow shown. Visible:" << m_timerWindow->isVisible() 
-             << "Geometry:" << m_timerWindow->geometry();
 }
 
 void MainWindow::onShowCountdown()
@@ -250,6 +243,8 @@ void MainWindow::onShowCountdown()
         int hours = inputDialog->hours();
         int minutes = inputDialog->minutes();
         int seconds = inputDialog->seconds();
+        int endAction = inputDialog->endAction();
+        QString killProcess = inputDialog->killProcess();
         
         if (hours > 0 || minutes > 0 || seconds > 0) {
             if (m_countdownWindow) {
@@ -257,7 +252,7 @@ void MainWindow::onShowCountdown()
                 m_countdownWindow->deleteLater();
             }
             
-            m_countdownWindow = new CountdownWindow(hours, minutes, seconds, this);
+            m_countdownWindow = new CountdownWindow(hours, minutes, seconds, endAction, killProcess, this);
             
             // Ensure window is visible and not minimized
             m_countdownWindow->setWindowState(Qt::WindowActive);
@@ -265,10 +260,7 @@ void MainWindow::onShowCountdown()
             m_countdownWindow->show();
             m_countdownWindow->raise();
             m_countdownWindow->activateWindow();
-            
-            qDebug() << "CountdownWindow shown. Visible:" << m_countdownWindow->isVisible()
-                     << "Geometry:" << m_countdownWindow->geometry();
-            
+
             connect(m_countdownWindow, &QWidget::destroyed, [this]() {
                 m_countdownWindow = nullptr;
             });
@@ -278,7 +270,7 @@ void MainWindow::onShowCountdown()
     inputDialog->deleteLater();
 }
 
-void MainWindow::onTimerComplete()
+void MainWindow::onLookAwayTrigger()
 {
 
     if (!m_reminderDialog) {
@@ -294,12 +286,12 @@ void MainWindow::onTimerComplete()
     m_timerManager->start();
 }
 
-void MainWindow::onSessionStart()
+void MainWindow::onWorkStart()
 {
     m_databaseManager->startWorkSession();
 }
 
-void MainWindow::onSessionEnd()
+void MainWindow::onWorkEnd()
 {
     m_databaseManager->endWorkSession();
 }
@@ -310,23 +302,21 @@ void MainWindow::onScreenStateChanged(ScreenState state)
         // user set paused, keep pause state
         return;
     }
-    // option 1-stop  2-restart
+
+    // 非智能计时模式：按原有选项处理
     switch (state) {
     case ScreenState::Unlocked:
         // 从普通状态解锁（非锁屏状态）
-        if(/*m_config->screenSaverOption() == 1 && */!m_timerManager->isRunning()){
-        //     // resume timer
-        //     m_timerManager->resume();qDebug() << "Screen unlocked, resume timer";
-        // }else if(m_config->screenSaverOption() == 2 && !m_timerManager->isRunning()){
-        //     // restart timer
+        if(!m_timerManager->isRunning()){
             bool loggedIn{false};
             // 检查从锁屏解锁后用户状态
             if (m_screenMonitor) {
                 loggedIn = m_screenMonitor->isUserLoggedIn();
-                qDebug() << "System unlocked - User logged in:" << loggedIn;
+                // qDebug() << "System unlocked - User logged in:" << loggedIn;
             }
             if(loggedIn){
-                m_timerManager->start();qDebug() << "从普通状态解锁（非锁屏状态）, restart timer";
+                m_timerManager->start();
+                // qDebug() << "从普通状态解锁（非锁屏状态）, restart timer";
             }
         }
         break;
@@ -335,51 +325,59 @@ void MainWindow::onScreenStateChanged(ScreenState state)
         // 从系统锁屏解锁
         if(m_config->lockScreenOption() == 1 && !m_timerManager->isRunning()){
             // resume timer
-            m_timerManager->resume();qDebug() << "Screen unlocked from lock, resume timer";
+            m_timerManager->resume();
+            // qDebug() << "Screen unlocked from lock, resume timer";
         }else if(m_config->lockScreenOption() == 2 && !m_timerManager->isRunning()){
             // restart timer
-            m_timerManager->start();qDebug() << "Screen unlocked from lock, restart timer";
+            m_timerManager->start();
+            // qDebug() << "Screen unlocked from lock, restart timer";
         }
         break;
         
-    case ScreenState::ScreenSaverStart:
-        // 屏保启动
-        if(m_config->screenSaverOption() == 1 && m_timerManager->isRunning()){
-            // pause timer
-            m_timerManager->pause();qDebug() << "Screensaver started, pause timer";
-        }else if(m_config->screenSaverOption() == 2 && m_timerManager->isRunning()){
-            // stop timer
-            m_timerManager->stop();qDebug() << "Screensaver started, stop timer";
-        }
-        break;
+    // case ScreenState::ScreenSaverStart:
+    //     // 屏保启动
+    //     if(m_config->screenSaverOption() == 1 && m_timerManager->isRunning()){
+    //         // pause timer
+    //         m_timerManager->pause();
+    //         // qDebug() << "Screensaver started, pause timer";
+    //     }else if(m_config->screenSaverOption() == 2 && m_timerManager->isRunning()){
+    //         // stop timer
+    //         m_timerManager->stop();
+    //         // qDebug() << "Screensaver started, stop timer";
+    //     }
+    //     break;
         
-    case ScreenState::ScreenSaverStop:
-        // 屏保退出,检查屏保退出后用户是否已经登录
-        if (m_screenMonitor) {
-            bool loggedIn = m_screenMonitor->isUserLoggedIn();
-            qDebug() << "Screensaver stopped - User logged in:" << loggedIn;
-            if (loggedIn) {
-                qDebug() << "User needs to enter password to unlock";
-                // 密码解锁界面的处理逻辑
-                if(m_config->screenSaverOption() == 1 && !m_timerManager->isRunning()){
-                    // resume timer
-                    m_timerManager->resume();qDebug() << "Screensaver stopped, resume timer";
-                }else if(m_config->screenSaverOption() == 2 && !m_timerManager->isRunning()){
-                    // restart timer
-                    m_timerManager->start();qDebug() << "Screensaver stopped, restart timer";
-                }
-            }
-        }
-        break;
+    // case ScreenState::ScreenSaverStop:
+    //     // 屏保退出,检查屏保退出后用户是否已经登录
+    //     if (m_screenMonitor) {
+    //         bool loggedIn = m_screenMonitor->isUserLoggedIn();
+    //         // qDebug() << "Screensaver stopped - User logged in:" << loggedIn;
+    //         if (loggedIn) {
+    //             // qDebug() << "User needs to enter password to unlock";
+    //             // 密码解锁界面的处理逻辑
+    //             if(m_config->screenSaverOption() == 1 && !m_timerManager->isRunning()){
+    //                 // resume timer
+    //                 m_timerManager->resume();
+    //                 // qDebug() << "Screensaver stopped, resume timer";
+    //             }else if(m_config->screenSaverOption() == 2 && !m_timerManager->isRunning()){
+    //                 // restart timer
+    //                 m_timerManager->start();
+    //                 // qDebug() << "Screensaver stopped, restart timer";
+    //             }
+    //         }
+    //     }
+    //     break;
         
     case ScreenState::Locked:
         // 系统锁屏
         if(m_config->lockScreenOption() == 1 && m_timerManager->isRunning()){
             // pause timer
-            m_timerManager->pause();qDebug() << "System locked, pause timer";
+            m_timerManager->pause();
+            // qDebug() << "System locked, pause timer";
         }else if(m_config->lockScreenOption() == 2 && m_timerManager->isRunning()){
             // stop timer
-            m_timerManager->stop();qDebug() << "System locked, stop timer";
+            m_timerManager->stop();
+            // qDebug() << "System locked, stop timer";
         }
         break;
     }

@@ -1,6 +1,7 @@
 #ifndef TIMERWINDOW_H
 #define TIMERWINDOW_H
 
+#include "screenstatemonitor.h"
 #include <QWidget>
 #include <QTimer>
 #include <QTime>
@@ -17,7 +18,8 @@ public:
 
     // QObject interface
     bool event(QEvent *event) override;
-
+public Q_SLOTS:
+    void onScreenStateChanged(ScreenState state);
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -47,6 +49,8 @@ private:
     bool m_running;
     bool m_started;
     QPoint m_dragPosition;
+    bool m_saverRunning;
+
 };
 
 #endif // TIMERWINDOW_H

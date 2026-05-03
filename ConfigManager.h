@@ -78,6 +78,10 @@ public:
     QString countdownAlertSound() const { return m_countdownAlertSound; }
     void setCountdownAlertSound(const QString& soundFile);
 
+    // 智能计时：锁屏/屏保时自动暂停，解锁后自动继续
+    bool smartTimer() const { return m_smartTimer; }
+    void setSmartTimer(bool enabled);
+
 signals:
     void configChanged();
 
@@ -118,6 +122,8 @@ private:
     int m_countdownFontSize;
     QColor m_countdownTextColor;
     QString m_countdownAlertSound;
+
+    bool m_smartTimer;
 };
 
 #endif // CONFIGMANAGER_H
