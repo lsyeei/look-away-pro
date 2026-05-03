@@ -205,10 +205,10 @@ void CountdownWindow::onFinished()
     
     if (m_flashCount < 10) {
         QTimer::singleShot(300, this, &CountdownWindow::onFinished);
-    } else {
+    } /*else {
         // close();
-        m_restartBtn->show();
-    }
+        // m_restartBtn->show();
+    }*/
 }
 
 void CountdownWindow::updateDisplay()
@@ -261,7 +261,7 @@ void CountdownWindow::executeEndAction()
             });
         }
 #endif
-        m_restartBtn->show();
+        // m_restartBtn->show();
         break;
     case 2:
         // 关闭进程
@@ -272,7 +272,7 @@ void CountdownWindow::executeEndAction()
             QProcess::startDetached("killall", {"-9", m_killProcess});
 #endif
         }
-        m_restartBtn->show();
+        // m_restartBtn->show();
         break;
     }
 }

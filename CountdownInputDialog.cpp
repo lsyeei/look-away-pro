@@ -55,6 +55,7 @@ void CountdownInputDialog::setupUI()
     m_endActionComboBox->addItem("关闭进程");
 
     m_processLabel = new QLabel("进程名");
+    m_processLabel->setVisible(false);
     m_processEdit->setPlaceholderText("如 notepad.exe");
     m_processEdit->setClearButtonEnabled(true);
     m_processEdit->setVisible(false);
