@@ -171,7 +171,7 @@ void MainWindow::onShowStatistics()
     }
 
     m_config->startRaiseHolder();
-    connect(m_statisticsDialog, &QDialog::finished,
+    connect(m_statisticsDialog, &QWidget::close,
             this, [&]{m_config->endRaiseHolder();});
     m_statisticsDialog->show();
     m_statisticsDialog->activateWindow();
@@ -189,7 +189,7 @@ void MainWindow::onShowSettings()
         });
     }
     m_config->startRaiseHolder();
-    connect(m_settingsDialog, &QDialog::finished,
+    connect(m_settingsDialog, &QWidget::close,
             this, [&]{m_config->endRaiseHolder();});
     m_settingsDialog->loadSettings();
     m_settingsDialog->show();
