@@ -170,6 +170,9 @@ void MainWindow::onShowStatistics()
         m_statisticsDialog = new StatisticsDialog(m_databaseManager, this);
     }
 
+    m_config->startRaiseHolder();
+    connect(m_statisticsDialog, &QDialog::finished,
+            this, [&]{m_config->endRaiseHolder();});
     m_statisticsDialog->show();
     m_statisticsDialog->activateWindow();
 }
@@ -185,6 +188,9 @@ void MainWindow::onShowSettings()
             m_timerManager->start();
         });
     }
+    m_config->startRaiseHolder();
+    connect(m_settingsDialog, &QDialog::finished,
+            this, [&]{m_config->endRaiseHolder();});
     m_settingsDialog->loadSettings();
     m_settingsDialog->show();
     m_settingsDialog->activateWindow();
@@ -277,9 +283,11 @@ void MainWindow::onLookAwayTrigger()
         m_reminderDialog = new ReminderDialog(this);
     }
 
+    m_config->startRaiseHolder();
     m_reminderDialog->showFullScreen();
     m_reminderDialog->exec();
 
+    m_config->endRaiseHolder();
     // Record break time after dialog closes
     m_databaseManager->recordBreakTime(m_config->breakTime());
     // start next timer

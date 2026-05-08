@@ -163,7 +163,9 @@ void TimerWindow::paintEvent(QPaintEvent *event)
     Q_UNUSED(event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    raise();
+    if (ConfigManager::instance()->canRaise()) {
+        raise();
+    }
     
     painter.setBrush(QBrush(QColor(0, 0, 0, 150)));
     painter.setPen(Qt::NoPen);

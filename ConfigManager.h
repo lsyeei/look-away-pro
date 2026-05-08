@@ -82,6 +82,10 @@ public:
     bool smartTimer() const { return m_smartTimer; }
     void setSmartTimer(bool enabled);
 
+    void startRaiseHolder(){m_raiseHolder ++;}
+    void endRaiseHolder(){m_raiseHolder --;}
+    bool canRaise(){return m_raiseHolder <= 0;}
+
 signals:
     void configChanged();
 
@@ -124,6 +128,8 @@ private:
     QString m_countdownAlertSound;
 
     bool m_smartTimer;
+    //  > 0,should stop raise window; <= 0 can raise
+    int m_raiseHolder{0};
 };
 
 #endif // CONFIGMANAGER_H

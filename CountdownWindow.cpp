@@ -152,7 +152,9 @@ void CountdownWindow::paintEvent(QPaintEvent *event)
     Q_UNUSED(event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    raise();
+    if (ConfigManager::instance()->canRaise()) {
+        raise();
+    }
     if (m_finished && m_flashCount % 2 == 1) {
         painter.setBrush(QBrush(QColor(255, 0, 0, 150)));
     } else {
