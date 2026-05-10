@@ -20,7 +20,7 @@ TimerWindow::TimerWindow(QWidget *parent)
     , m_restartButton(new QPushButton(this))
     , m_closeButton(new QPushButton(this))
     , m_running(false)
-    , m_started(false), m_saverRunning(false), m_screenLock(false)
+    , m_started(false), m_saverRunning(false), m_screenLocked(false)
 {
     setupUI();
 
@@ -180,12 +180,13 @@ void TimerWindow::closeEvent(QCloseEvent *event)
 
 void TimerWindow::onTimerTimeout()
 {
-    if(m_started && m_running && !m_saverRunning && !m_screenLock){
+    if(m_started && m_running && !m_saverRunning && !m_screenLocked){
         m_time = m_time.addSecs(1);
     }
 #if defined(Q_OS_WIN)
-    ::SystemParametersInfo(SPI_GETSCREENSAVERRUNNING, 0, &m_saverRunning, 0);
-    m_saverRunning &= ConfigManager::instance()->smartTimer();
+    BOOL bSaverRunning = FALSE;
+    ::SystemParametersInfo(SPI_GETSCREENSAVERRUNNING, 0, &bSaverRunning, 0);
+    m_saverRunning = (bSaverRunning != FALSE) && ConfigManager::instance()->smartTimer();
 #endif
     updateDisplay();
 }
@@ -254,20 +255,11 @@ bool TimerWindow::event(QEvent *event)
 
 void TimerWindow::onScreenStateChanged(ScreenState state)
 {
-    if (!ConfigManager::instance()->smartTimer() || !m_started){
+    if (!ConfigManager::instance()->smartTimer()){
+        m_screenLocked = false;
         return;
     }
     // 智能计时模式：锁屏/屏保时暂停，解锁后恢复
-    switch (state) {
-    case ScreenState::ScreenSaverStart:
-    case ScreenState::Locked:
-        m_screenLock = true;
-        break;
-    case ScreenState::ScreenSaverStop:
-    case ScreenState::UnlockedFromLock:
-    case ScreenState::Unlocked:
-        m_screenLock = false;
-        break;
-    }
-    m_screenLock &= ConfigManager::instance()->smartTimer();
+    m_screenLocked = (state == ScreenState::Locked) ||
+                     (state == ScreenState::ScreenSaverStart);
 }

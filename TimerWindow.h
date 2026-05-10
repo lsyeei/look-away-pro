@@ -46,11 +46,11 @@ private:
     QPushButton *m_restartButton;
     QPushButton *m_closeButton;
     
-    bool m_running;
-    bool m_started;
+    BOOL m_running;
+    BOOL m_started;
     QPoint m_dragPosition;
-    bool m_saverRunning;
-    bool m_screenLock;
+    BOOL m_saverRunning;
+    BOOL m_screenLocked;
 };
 
 #endif // TIMERWINDOW_H

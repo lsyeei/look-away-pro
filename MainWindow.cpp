@@ -341,41 +341,7 @@ void MainWindow::onScreenStateChanged(ScreenState state)
             // qDebug() << "Screen unlocked from lock, restart timer";
         }
         break;
-        
-    // case ScreenState::ScreenSaverStart:
-    //     // 屏保启动
-    //     if(m_config->screenSaverOption() == 1 && m_timerManager->isRunning()){
-    //         // pause timer
-    //         m_timerManager->pause();
-    //         // qDebug() << "Screensaver started, pause timer";
-    //     }else if(m_config->screenSaverOption() == 2 && m_timerManager->isRunning()){
-    //         // stop timer
-    //         m_timerManager->stop();
-    //         // qDebug() << "Screensaver started, stop timer";
-    //     }
-    //     break;
-        
-    // case ScreenState::ScreenSaverStop:
-    //     // 屏保退出,检查屏保退出后用户是否已经登录
-    //     if (m_screenMonitor) {
-    //         bool loggedIn = m_screenMonitor->isUserLoggedIn();
-    //         // qDebug() << "Screensaver stopped - User logged in:" << loggedIn;
-    //         if (loggedIn) {
-    //             // qDebug() << "User needs to enter password to unlock";
-    //             // 密码解锁界面的处理逻辑
-    //             if(m_config->screenSaverOption() == 1 && !m_timerManager->isRunning()){
-    //                 // resume timer
-    //                 m_timerManager->resume();
-    //                 // qDebug() << "Screensaver stopped, resume timer";
-    //             }else if(m_config->screenSaverOption() == 2 && !m_timerManager->isRunning()){
-    //                 // restart timer
-    //                 m_timerManager->start();
-    //                 // qDebug() << "Screensaver stopped, restart timer";
-    //             }
-    //         }
-    //     }
-    //     break;
-        
+
     case ScreenState::Locked:
         // 系统锁屏
         if(m_config->lockScreenOption() == 1 && m_timerManager->isRunning()){
