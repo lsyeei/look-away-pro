@@ -50,7 +50,7 @@ private:
     bool m_started;
     QPoint m_dragPosition;
     bool m_saverRunning;
-
+    bool m_screenLock;
 };
 
 #endif // TIMERWINDOW_H

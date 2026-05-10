@@ -20,7 +20,7 @@ TimerWindow::TimerWindow(QWidget *parent)
     , m_restartButton(new QPushButton(this))
     , m_closeButton(new QPushButton(this))
     , m_running(false)
-    , m_started(false), m_saverRunning(false)
+    , m_started(false), m_saverRunning(false), m_screenLock(false)
 {
     setupUI();
 
@@ -180,7 +180,7 @@ void TimerWindow::closeEvent(QCloseEvent *event)
 
 void TimerWindow::onTimerTimeout()
 {
-    if(m_started && m_running && !m_saverRunning){
+    if(m_started && m_running && !m_saverRunning && !m_screenLock){
         m_time = m_time.addSecs(1);
     }
 #if defined(Q_OS_WIN)
@@ -261,14 +261,13 @@ void TimerWindow::onScreenStateChanged(ScreenState state)
     switch (state) {
     case ScreenState::ScreenSaverStart:
     case ScreenState::Locked:
-        // pauseTimer(true);
-        m_running = false;
+        m_screenLock = true;
         break;
     case ScreenState::ScreenSaverStop:
     case ScreenState::UnlockedFromLock:
     case ScreenState::Unlocked:
-        m_running = true;
-        // pauseTimer(false);
+        m_screenLock = false;
         break;
     }
+    m_screenLock &= ConfigManager::instance()->smartTimer();
 }
