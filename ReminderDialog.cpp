@@ -18,7 +18,7 @@ ReminderDialog::ReminderDialog(QWidget *parent)
     , m_remainingTime(20)
     , m_config(nullptr)
 {
-    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog | Qt::Tool);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog);// | Qt::Tool
     setAttribute(Qt::WA_TranslucentBackground);
     setModal(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -212,7 +212,7 @@ void ReminderDialog::onBreakFinished()
 
 bool ReminderDialog::event(QEvent *event)
 {
-    if (event->type() == QEvent::WindowDeactivate) {
+    if (event->type() == QEvent::WindowDeactivate || event->type() == QEvent::Show) {
         // 窗口失去焦点时重新激活
         QTimer::singleShot(100, this, [this]() {
             raise();
