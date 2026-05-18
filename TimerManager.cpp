@@ -79,7 +79,9 @@ void TimerManager::onTimerTick()
             emit workStart();
         }else{
             emit workEnd();
-            emit lookAwayTrigger();
+            if (m_autoFlag) {
+                emit lookAwayTrigger();
+            }
         }
     }
     m_running = runState;
