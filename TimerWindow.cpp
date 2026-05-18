@@ -193,6 +193,8 @@ void TimerWindow::onTimerTimeout()
 
 void TimerWindow::onPlayPauseClicked()
 {
+    m_saverRunning = false;
+    m_screenLocked = false;
     if (!m_started) {
         m_started = true;
         m_running = true;
@@ -205,6 +207,8 @@ void TimerWindow::onPlayPauseClicked()
 
 void TimerWindow::onStopClicked()
 {
+    m_saverRunning = false;
+    m_screenLocked = false;
     m_time.setHMS(0, 0, 0);
     updateDisplay();
     m_started = false;
