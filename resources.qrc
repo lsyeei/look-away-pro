@@ -18,5 +18,6 @@
         <file>icons/pause2.svg</file>
         <file>sound/break-end.wav</file>
         <file>sound/time-end.wav</file>
+        <file>icon-1.ico</file>
     </qresource>
 </RCC>

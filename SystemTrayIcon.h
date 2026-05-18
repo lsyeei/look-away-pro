@@ -12,6 +12,7 @@ class SystemTrayIcon : public QSystemTrayIcon
 public:
     explicit SystemTrayIcon(QObject *parent = nullptr);
     void setPaused(bool paused);
+    void setIconState(bool flag);
 
 signals:
     void showStatistics();

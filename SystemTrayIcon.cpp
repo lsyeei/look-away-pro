@@ -83,6 +83,12 @@ void SystemTrayIcon::setPaused(bool paused)
     }
 }
 
+void SystemTrayIcon::setIconState(bool flag)
+{
+    QIcon icon(QString(":/icon%1.ico").arg(flag?"":"-1"));
+    setIcon(icon);
+}
+
 void SystemTrayIcon::createActions()
 {
     // Pre-load SVG icons to cache for faster first-time display
