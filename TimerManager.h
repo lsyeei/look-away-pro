@@ -14,14 +14,12 @@ public:
     void setWorkTime(int minutes);
     void setBreakTime(int seconds);
     void start();
-    void pause();
-    void resume();
     void stop();
     void reset();
     void setAutoFlag(bool flag);
+    void setScreenLocked(bool flag);
 
     int getRemainingTime() const;
-    bool isRunning() const;
 
 signals:
     void lookAwayTrigger();
@@ -40,7 +38,10 @@ private:
     bool m_running;
     // 自动运行标记，可通过菜单控制，true auto，false manual
     bool m_autoFlag;
+    // 屏保运行标记
     bool m_saverRunning;
+    // 锁屏标记
+    bool m_screenLocked;
 };
 
 #endif // TIMERMANAGER_H
