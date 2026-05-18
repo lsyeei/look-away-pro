@@ -80,6 +80,7 @@ void SystemTrayIcon::setPaused(bool paused)
     if (m_pauseAction) {
         m_pauseAction->setText(paused ? "继续" : "暂停");
         m_pauseAction->setIcon(paused ? QIcon(":/icons/play.svg") : QIcon(":/icons/pause.svg"));
+        setIconState(!paused);
     }
 }
 
