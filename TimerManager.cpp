@@ -79,7 +79,7 @@ void TimerManager::onTimerTick()
             emit workStart();
         }else{
             emit workEnd();
-            if (m_autoFlag) {
+            if (m_autoFlag && m_remainingTime <= 0) {
                 emit lookAwayTrigger();
             }
         }
